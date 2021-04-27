@@ -1,0 +1,131 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.4748626,
+          37.3339347
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07064550",
+        "name": "CURRENT RIVER ABOVE PULLTITE SPRING",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07064550",
+        "comid": "7517341",
+        "reachcode": "11010008000424",
+        "measure": "13.4764853339",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07064550/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.490141,
+          37.33421245
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07064555",
+        "name": "Pulltite Spring near Round Spring, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07064555",
+        "comid": "7517407",
+        "reachcode": "11010008000422",
+        "measure": "93.5866041070",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07064555/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.4890298,
+          37.33282357
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07064560",
+        "name": "CURRENT RIVER BELOW PULLTITE SPRING",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07064560",
+        "comid": "7517407",
+        "reachcode": "11010008000422",
+        "measure": "88.3971311844",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07064560/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.5528056,
+          37.37569444
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07064533",
+        "name": "Current River above Akers, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07064533",
+        "comid": "7517071",
+        "reachcode": "11010008000454",
+        "measure": "44.4444100000",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07064533/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.5476434,
+          37.37643445
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07064535",
+        "name": "CURRENT RIVER BELOW AKERS, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07064535",
+        "comid": "7517071",
+        "reachcode": "11010008000454",
+        "measure": "6.6905968471",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07064535/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.6712593,
+          37.44837816
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07064440",
+        "name": "Current River at Montauk State Park, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07064440",
+        "comid": "7516577",
+        "reachcode": "11010008000471",
+        "measure": "26.1128200000",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07064440/navigation"
+      }
+    }
+  ]
+}

@@ -55,97 +55,72 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
 
 
 
-           //  convert geojson to polyline (slowwwwww)
+        //  convert geojson to polyline (slowwwwww)
 
 
-            let coordinatesArray=[]
-            // loop through the json response
-            for(let i=0;i<riverdata[0]["features"].length;i++){
-                coordinatesArray.push(riverdata[0]['features'][i].geometry.coordinates)
-            };
+        let coordinatesArray = []
+        // loop through the json response
+        for (let i = 0; i < riverdata[0]["features"].length; i++) {
+            coordinatesArray.push(riverdata[0]['features'][i].geometry.coordinates)
+        };
 
-            //flatten array once
-            let flattenedCoordinatesArray=coordinatesArray.flat(1)
-            
-            let polylineArray=[]
-           
-            //loop through and reverse coords
-            for(let z=0;z<flattenedCoordinatesArray.length;z++){
-                polylineArray.push(flattenedCoordinatesArray[z].reverse())
-            }
+        //flatten array once
+        let flattenedCoordinatesArray = coordinatesArray.flat(1)
 
+        let polylineArray = []
 
-            let testgroup = new L.featureGroup([])
+        //loop through and reverse coords
+        for (let z = 0; z < flattenedCoordinatesArray.length; z++) {
+            polylineArray.push(flattenedCoordinatesArray[z].reverse())
+        }
 
 
-            let potato= new L.Polyline(polylineArray, {
-                    
-                }).addTo(testgroup);
+        let navigationOverlay = new L.Polyline(polylineArray, {
 
-            let navigationOverlay = L.geoJson(riverdata, {
-            style: lineStyle,
-            onEachFeature: function (feature, layer) {
-                //let popupOptions = L.popup     //({"autoClose": false, "closeOnClick": false});
-                //layer.bindPopup("");
-                // changed functionality to mouseover event only on markers
-                //   layer.on('popupopen', function(event) {
+                //change style
+            }).setStyle(lineStyle)
 
-                //     let popupevent = event.popup;
-                //     //display coordinates for point on click
-                //     popupevent.setContent(popupevent.getLatLng().lat.toString() +", " + popupevent.getLatLng().lng.toString());
-                layer.on('mouseover', function(e){
-                   console.log(e)
-                }),
-
-                //   },
-                layer.on('click', function (event) {
-                    //marker is added to the feature group on click 
-                    //BUG: FIXED on removing layer, it is removed from map but not feature group and is therefore redrawn when toggling markers layer
-                    // this is adding markers based on map coordinates not coordinates in feature
-                    let addMarker = new L.circleMarker([event.latlng.lat, event.latlng.lng]).addTo(markersFeatureGroup);
-                    addMarker.bindPopup(event.latlng.lat.toString() + " ," + event.latlng.lng.toString()) //adds the lat/lng in the event of clicking marker again
-                    //open popup on lick
+            .on('mouseover', function (e) {
+                console.log(e)
+            })
+            .on('click', function (event) {
+                //marker is added to the feature group on click 
+                //BUG: FIXED on removing layer, it is removed from map but not feature group and is therefore redrawn when toggling markers layer
+                // this is adding markers based on map coordinates not coordinates in feature
+                let addMarker = new L.circleMarker([event.latlng.lat, event.latlng.lng]).addTo(markersFeatureGroup);
+                addMarker.bindPopup(event.latlng.lat.toString() + " ," + event.latlng.lng.toString()) //adds the lat/lng in the event of clicking marker again
+                //open popup on lick
+                addMarker.openPopup()
+                console.log(addMarker.getLatLng())
+                //opens the coordinates and changges styleon mouseover
+                addMarker.on('mouseover', function (e) {
                     addMarker.openPopup()
-                    console.log(addMarker.getLatLng())
-                    //opens the coordinates and changges styleon mouseover
-                    addMarker.on('mouseover', function (e) {
-                        addMarker.openPopup()
-                        e.target.setStyle({
-                            color: "#C37AE8"
-                        })
-                        e.target.setRadius(20)
-                        //console.log(markersFeatureGroup.getLayerId(addMarker))  //prints the marker's id 
-                        // closes popup and changes marker style back on mouseout
-                    }).on('mouseout', function (e) {
-                        addMarker.closePopup()
-                        e.target.setRadius(10)
-                        e.target.setStyle({
-                            color: "#3388FF"
-                        })
-                    }).on('click', function (e) {
-                        markersFeatureGroup.removeLayer(addMarker)
-                        addMarker.remove()
-                        e.target.setRadius(10)
-                        e.target.setStyle({
-                            color: "#3388FF"
-                        })
+                    e.target.setStyle({
+                        color: "#C37AE8"
                     })
-
-
-
+                    e.target.setRadius(20)
+                    //console.log(markersFeatureGroup.getLayerId(addMarker))  //prints the marker's id 
+                    // closes popup and changes marker style back on mouseout
+                }).on('mouseout', function (e) {
+                    addMarker.closePopup()
+                    e.target.setRadius(10)
+                    e.target.setStyle({
+                        color: "#3388FF"
+                    })
+                }).on('click', function (e) {
+                    markersFeatureGroup.removeLayer(addMarker)
+                    addMarker.remove()
+                    e.target.setRadius(10)
+                    e.target.setStyle({
+                        color: "#3388FF"
+                    })
                 })
+            })
 
-
-
-            }
-        });
-
-           
-     
         // plots and binds data to each NWIS site 
         let sitesOverlay = L.geoJson(sitedata, {
             pointToLayer: function (feature, latlng) {
-                
+
                 return L.circleMarker(latlng, siteMonitoringPointsStyle);
             },
             onEachFeature: function (feature, layer) {
@@ -193,16 +168,36 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
         markersFeatureGroup.addTo(map)
-        testgroup.addTo(map)
-      
+
         // // zoom the map to the polyline
         // map.fitBounds(polyline.getBounds());
 
 
+        let counter=0
+        let start;
+        let end;
+        map.on('click', function(e){
+            if(counter==0){
+               start=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+                console.log(`start=${start}`)
+               counter++
+               return
+            }else if(counter==1){
+            //    console.log(end=L.GeometryUtil.closest(map, navigationOverlay, e.latlng, true))
+            //    console.log(L.GeomentryUtil.extract(map, navigationOverlay, start, end))
+               end=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+               console.log(`end=${end}`)
+               let lineSubset=L.GeometryUtil.extract(map, navigationOverlay, start, end)
+               console.log(lineSubset)
+               let testSubset=new L.Polyline(lineSubset).setStyle({color: 'black'}).addTo(map)
 
-// map.on('click', function(e){
-//     console.log(L.GeometryUtil.closest(map, potato, e.latlng, true))
-// })
+               counter=0
+               return
+          
+                
+            }
+            
+        })
 
 
     });

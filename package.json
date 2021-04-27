@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "leaflet-geometryutil": "^0.10.0"
+  }
+}
