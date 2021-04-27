@@ -190,7 +190,8 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
                let lineSubset=L.GeometryUtil.extract(map, navigationOverlay, start, end)
                console.log(lineSubset)
                let testSubset=new L.Polyline(lineSubset).setStyle({color: 'black'}).addTo(map)
-
+               
+               console.log(L.GeometryUtil.length(lineSubset));
                counter=0
                return
           
