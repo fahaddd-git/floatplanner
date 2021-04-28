@@ -381,7 +381,8 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         };
 
 
-        // hard coded this to try it out
+        // event handler for clicking cedar to akers button
+        // hard coded this to try it out. needs DRY
 
         document.getElementById("buttonCedarAkers").addEventListener("click", function () {
             clearInfo()
@@ -390,8 +391,14 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             
             let routeCoords=L.GeometryUtil.extract(map, navigationOverlay, cedargrove, akers)
             let drawRoute=new L.polyline(routeCoords).setStyle({color: 'black', weight: '6', opacity:1}).addTo(markersFeatureGroup)
-            let cedargrovemarker=new L.circleMarker([37.4221751987934, -91.6082682013512]).bindPopup("Cedar Grove").addTo(markersFeatureGroup)
-            let akersmarker=new L.circleMarker([37.3754083961248, -91.5524060055614 ]).bindPopup("Akers Ferry").addTo(markersFeatureGroup)
+
+            let cedarpopup=L.popup({autoClose:false}).setContent("Cedar Grove")
+            let akerspopup=L.popup({autoClose:false}).setContent("Akers Ferry")
+           
+            let cedargrovemarker=new L.circleMarker([37.4221751987934, -91.6082682013512]).bindPopup(cedarpopup).addTo(markersFeatureGroup)
+            let akersmarker=new L.circleMarker([37.3754083961248, -91.5524060055614 ]).bindPopup(akerspopup).addTo(markersFeatureGroup)
+            markersFeatureGroup.openPopup()
+     
             map.fitBounds(markersFeatureGroup.getBounds());
 
             document.getElementById("distanceTotalHaversine").innerHTML=7.77
