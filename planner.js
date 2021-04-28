@@ -244,7 +244,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             console.log(`end=${end}`)
             let lineSubset=L.GeometryUtil.extract(map, navigationOverlay, start, end)
             console.log(lineSubset)
-            let firstLine=new L.Polyline(lineSubset).setStyle({color: 'green', weight: '6'}).addTo(map)
+            let firstLine=new L.Polyline(lineSubset).setStyle({color: 'white', weight: '6'}).addTo(markersFeatureGroup)
             
             let distanceABhaversine = 0
         
@@ -283,7 +283,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
                 //let randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
                 
                 
-                let secondLine=new L.Polyline(secondSubset).setStyle({color: "pink", weight: "6"}).addTo(map)
+                let secondLine=new L.Polyline(secondSubset).setStyle({color: "black", weight: "6"}).addTo(markersFeatureGroup)
 
                 //could potentitally put this in the haversine function
                 let distanceBChaversine=0
@@ -318,18 +318,17 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         legend.onAdd = function(map) {
 
           
-          div = L.DomUtil.create("div", "legend");
-
+          let div = L.DomUtil.create("div", "legend");
           div.innerHTML += "<h4>Legend</h4>";
           div.innerHTML += '<i class="circle"></i><span>River Monitoring Stations</span><br>';
-          div.innerHTML += '<i style="background: #448D40"></i><span>b</span><br>';
-          div.innerHTML += '<i style="background: #E6E696"></i><span>c</span><br>';
-          div.innerHTML += '<i style="background: #E8E6E0"></i><span>d</span><br>';
+        //   div.innerHTML += '<i style="background: #448D40"></i><span>b</span><br>';
+        //   div.innerHTML += '<i style="background: #E6E696"></i><span>c</span><br>';
+        //   div.innerHTML += '<i style="background: #E8E6E0"></i><span>d</span><br>';
           div.innerHTML += '<span>Total Haversine Distance</span><br>';
           div.innerHTML += '<span id="distanceTotalHaversine"></span><br>';
           div.innerHTML += '<span>Total Estimated Distance</span><br>';
           div.innerHTML += '<i id="distanceTotalBuiltIn"></i><span></span><br>';
-         
+          div.innerHTML+='<button type="button">Clear</button>'
           
         
           
