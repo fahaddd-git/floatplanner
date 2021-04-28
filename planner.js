@@ -45,7 +45,7 @@ let markersFeatureGroup = L.featureGroup([])
 
 
 // this line requests data from my local machine then waits for it to load
-$.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson")).done(function (riverdata, sitedata) {
+$.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRiverSites.geojson")).done(function (riverdata, sitedata) {
 
     })
     .fail(function () {
