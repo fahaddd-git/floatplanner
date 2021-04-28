@@ -177,7 +177,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
 
 
 
-        L.control.layers(baseMaps, overlayMaps).addTo(map);
+        L.control.layers(baseMaps, overlayMaps,{collapsed: false}).addTo(map);
         markersFeatureGroup.addTo(map)
 
         // // zoom the map to the polyline
@@ -222,7 +222,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         let start;
         let end;
         let distanceTotalHaversine=0;
-        let distanceTotalBuiltIn=0
+        let distanceTotalBuiltIn=0;
 
         // TODO: change colors of lines for initial line perhaps. add sleep counter to prevent double clicking?
         //reduce the multiplying of 0.00062137 for the builtin distance when converting from meters to miles
@@ -325,10 +325,11 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         //   div.innerHTML += '<i style="background: #E6E696"></i><span>c</span><br>';
         //   div.innerHTML += '<i style="background: #E8E6E0"></i><span>d</span><br>';
           div.innerHTML += '<span>Total Haversine Distance</span><br>';
-          div.innerHTML += '<span id="distanceTotalHaversine"></span><br>';
+          div.innerHTML += '<span>(accounts for curvature of Earth)</span><br>';
+          div.innerHTML += '<span id="distanceTotalHaversine">0</span><br>';
           div.innerHTML += '<span>Total Estimated Distance</span><br>';
-          div.innerHTML += '<i id="distanceTotalBuiltIn"></i><span></span><br>';
-          div.innerHTML+='<button type="button">Clear</button>'
+          div.innerHTML += '<span id="distanceTotalBuiltIn">0</span><br>';
+          div.innerHTML+='<button type="button" id="clearButton">Clear</button>'
           
         
           
@@ -338,6 +339,27 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         };
         
         legend.addTo(map);
+
+
+        //event handler for clearing map when clicking button
+        document.getElementById("clearButton").addEventListener("click", function(){
+            //reset polyline math elements
+            counter=0
+            start=null
+            end=null
+            distanceTotalHaversine=0;
+            distanceTotalBuiltIn=0;          
+            //reset dom elements
+            document.getElementById("distanceTotalHaversine").innerHTML=0
+            document.getElementById("distanceTotalBuiltIn").innerHTML=0
+            //clear lines and markers from map
+            markersFeatureGroup.clearLayers()
+    
+
+
+
+        });
+
         
 
     });
