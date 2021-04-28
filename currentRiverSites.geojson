@@ -126,6 +126,195 @@
         "measure": "26.1128200000",
         "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07064440/navigation"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.1776639,
+          37.18561389
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07066510",
+        "name": "Current River above Powder Mill, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07066510",
+        "comid": "7520833",
+        "reachcode": "11010008000253",
+        "measure": "39.5224503173",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07066510/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.7834531,
+          36.49811629
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07068148",
+        "name": "CURRENT RIVER NEAR CURRENTVIEW,MO.",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07068148",
+        "comid": "7526431",
+        "reachcode": "11010008003648",
+        "measure": "80.6052225830",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07068148/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.1729077,
+          37.1800482
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07066540",
+        "name": "CURRENT RIVER BELOW POWDER MILL",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07066540",
+        "comid": "7518509",
+        "reachcode": "11010008000251",
+        "measure": "59.5526008392",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07066540/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.9837376,
+          36.96005169
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07067300",
+        "name": "CURRENT RIVER BELOW VAN BUREN, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07067300",
+        "comid": "7523405",
+        "reachcode": "11010008003656",
+        "measure": "28.9815492646",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07067300/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.054572,
+          37.0342171
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07066700",
+        "name": "CURRENT RIVER ABOVE VAN BUREN, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07066700",
+        "comid": "7520239",
+        "reachcode": "11010008000211",
+        "measure": "75.3741374064",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07066700/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.8476225,
+          36.62200294
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07068000",
+        "name": "Current River at Doniphan, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07068000",
+        "comid": "7523285",
+        "reachcode": "11010008000159",
+        "measure": "53.4813700000",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07068000/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.0135,
+          36.99138889
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07067000",
+        "name": "Current River at Van Buren, MO",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07067000",
+        "comid": "7524421",
+        "reachcode": "11010008000185",
+        "measure": "84.6918000000",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07067000/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.7692859,
+          36.48756086
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07068150",
+        "name": "CURRENT RIVER NEAR SUCCESS, ARK.",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07068150",
+        "comid": "7526437",
+        "reachcode": "11010008003641",
+        "measure": "85.0977744315",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07068150/navigation"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.98012649,
+          36.9458853
+        ]
+      },
+      "properties": {
+        "source": "nwissite",
+        "sourceName": "NWIS Sites",
+        "identifier": "USGS-07067600",
+        "name": "CURRENT RIVER BELOW BIG SPRING",
+        "uri": "https://waterdata.usgs.gov/monitoring-location/07067600",
+        "comid": "7523109",
+        "reachcode": "11010008000182",
+        "measure": "87.5953843153",
+        "navigation": "https://labs.waterdata.usgs.gov/api/nldi/linked-data/nwissite/USGS-07067600/navigation"
+      }
     }
   ]
 }
