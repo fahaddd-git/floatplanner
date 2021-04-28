@@ -55,7 +55,7 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
 
 
 
-        //  convert geojson to polyline. pretty slow but unsure how to implement these
+        // extract coordinates from geojson object to create polyline. pretty slow but unsure how to implement these
         // features without doing this
 
 
@@ -78,7 +78,7 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
 
         let navigationOverlay = new L.Polyline(polylineArray, {
 
-                //change style
+                //change polyline style
             }).setStyle(lineStyle)
 
             .on('mouseover', function (e) {
@@ -296,7 +296,7 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
                 distanceTotalBuiltIn+=distanceBCbuiltIn
                 console.log(`total distance builtIn= ${distanceTotalBuiltIn*0.00062137}`)
                
-            counter--;
+                 counter--;
                 return
             }
             
@@ -308,12 +308,14 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
 
         legend.onAdd = function(map) {
           var div = L.DomUtil.create("div", "legend");
-          div.innerHTML += "<h4>Map Legend</h4>";
-          div.innerHTML += '<span>a</span><br>';
-          div.innerHTML += '<span>b</span><br>';
-          div.innerHTML += '<span>c</span><br>';
-          div.innerHTML += '<span>d</span><br>';
-          div.innerHTML += '<span>e</span><br>';
+          div.innerHTML += "<h4>Legend</h4>";
+          div.innerHTML += '<i class="circle"></i><span>River Monitoring Stations</span><br>';
+          div.innerHTML += '<i style="background: #448D40"></i><span>b</span><br>';
+          div.innerHTML += '<i style="background: #E6E696"></i><span>c</span><br>';
+          div.innerHTML += '<i style="background: #E8E6E0"></i><span>d</span><br>';
+          div.innerHTML += '<i style="background: #000000"></i><span>e</span><br>';
+         
+          
         
           
           
