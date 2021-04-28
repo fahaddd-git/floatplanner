@@ -225,6 +225,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         let distanceTotalBuiltIn=0
 
         // TODO: change colors of lines for initial line perhaps. add sleep counter to prevent double clicking?
+        //reduce the multiplying of 0.00062137 for the builtin distance when converting from meters to miles
 
         navigationOverlay.on('click', function(e){
             if(counter==0){
@@ -265,6 +266,10 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             distanceTotalBuiltIn+=distanceABbuiltIn
             console.log(`total distance builtIn= ${distanceTotalBuiltIn*0.00062137}`)
 
+            document.getElementById("distanceTotalHaversine").innerHTML=distanceTotalHaversine
+            document.getElementById("distanceTotalBuiltIn").innerHTML=distanceTotalBuiltIn*0.00062137
+
+
             counter++;
             return
           
@@ -295,8 +300,12 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
                 console.log(`total distance haversine= ${distanceTotalHaversine}`)
                 distanceTotalBuiltIn+=distanceBCbuiltIn
                 console.log(`total distance builtIn= ${distanceTotalBuiltIn*0.00062137}`)
-               
-                 counter--;
+                
+                document.getElementById("distanceTotalHaversine").innerHTML=distanceTotalHaversine
+                document.getElementById("distanceTotalBuiltIn").innerHTML=distanceTotalBuiltIn*0.00062137
+
+                
+                counter--;
                 return
             }
             
@@ -307,13 +316,19 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         var legend = L.control({ position: "bottomright", colors: "black" });
 
         legend.onAdd = function(map) {
-          var div = L.DomUtil.create("div", "legend");
+
+          
+          div = L.DomUtil.create("div", "legend");
+
           div.innerHTML += "<h4>Legend</h4>";
           div.innerHTML += '<i class="circle"></i><span>River Monitoring Stations</span><br>';
           div.innerHTML += '<i style="background: #448D40"></i><span>b</span><br>';
           div.innerHTML += '<i style="background: #E6E696"></i><span>c</span><br>';
           div.innerHTML += '<i style="background: #E8E6E0"></i><span>d</span><br>';
-          div.innerHTML += '<i style="background: #000000"></i><span>e</span><br>';
+          div.innerHTML += '<span>Total Haversine Distance</span><br>';
+          div.innerHTML += '<span id="distanceTotalHaversine"></span><br>';
+          div.innerHTML += '<span>Total Estimated Distance</span><br>';
+          div.innerHTML += '<i id="distanceTotalBuiltIn"></i><span></span><br>';
          
           
         
