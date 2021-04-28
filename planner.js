@@ -402,7 +402,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             map.fitBounds(markersFeatureGroup.getBounds());
 
             document.getElementById("distanceTotalHaversine").innerHTML=7.77
-            document.getElementById("distanceTotalBuiltIn").innerHTML=L.GeometryUtil.length(routeCoords*0.00062137)
+            document.getElementById("distanceTotalBuiltIn").innerHTML=L.GeometryUtil.length(routeCoords)*0.00062137
 
 
 
