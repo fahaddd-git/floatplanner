@@ -33,18 +33,18 @@ let lineStyle = {
 // style for water site monitoring points
 let siteMonitoringPointsStyle = {
     radius: 10,
-    fillColor: "rgb(255,0,195)",
+    fillColor: "#CB3B27",
     color: "#fff",
     weight: 2,
     opacity: 1,
     fillOpacity: 1
 };
 
-// create feature group
+// create feature group for adding markers, lines, etc
 let markersFeatureGroup = L.featureGroup([])
 
 
-// this line requests data from local machine then waits for it to load
+// this line requests data from my local machine then waits for it to load
 $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson")).done(function (riverdata, sitedata) {
 
     })
@@ -55,7 +55,8 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
 
 
 
-        //  convert geojson to polyline (slowwwwww)
+        //  convert geojson to polyline. pretty slow but unsure how to implement these
+        // features without doing this
 
 
         let coordinatesArray = []
@@ -81,17 +82,24 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
             }).setStyle(lineStyle)
 
             .on('mouseover', function (e) {
-                console.log(e)
+                //console.log(e)
             })
             .on('click', function (event) {
                 //marker is added to the feature group on click 
                 //BUG: FIXED on removing layer, it is removed from map but not feature group and is therefore redrawn when toggling markers layer
                 // this is adding markers based on map coordinates not coordinates in feature
-                let addMarker = new L.circleMarker([event.latlng.lat, event.latlng.lng]).addTo(markersFeatureGroup);
+                
+                let closestPoint=L.GeometryUtil.closest(map, navigationOverlay, event.latlng, true)
+               // console.log(`closest point is: lat ${closestPoint.lat} long ${closestPoint.lng} `)
+                //adds marker at whatever coordinate that is on map's line
+                //let addMarker = new L.circleMarker([event.latlng.lat, event.latlng.lng]).addTo(markersFeatureGroup);
+                //adds marker at closest point in data segment
+                let addMarker = new L.circleMarker(closestPoint).addTo(markersFeatureGroup);
+                
                 addMarker.bindPopup(event.latlng.lat.toString() + " ," + event.latlng.lng.toString()) //adds the lat/lng in the event of clicking marker again
                 //open popup on lick
                 addMarker.openPopup()
-                console.log(addMarker.getLatLng())
+                //console.log(`marker added at: ${addMarker.getLatLng()}`)
                 //opens the coordinates and changges styleon mouseover
                 addMarker.on('mouseover', function (e) {
                     addMarker.openPopup()
@@ -107,13 +115,16 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
                     e.target.setStyle({
                         color: "#3388FF"
                     })
-                }).on('click', function (e) {
-                    markersFeatureGroup.removeLayer(addMarker)
-                    addMarker.remove()
-                    e.target.setRadius(10)
-                    e.target.setStyle({
-                        color: "#3388FF"
-                    })
+                    
+                    //previous functionality of removing a marker by clicking on it a second time
+
+                // }).on('click', function (e) {
+                //     markersFeatureGroup.removeLayer(addMarker)
+                //     addMarker.remove()
+                //     e.target.setRadius(10)
+                //     e.target.setStyle({
+                //         color: "#3388FF"
+                //     })
                 })
             })
 
@@ -170,8 +181,10 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
         markersFeatureGroup.addTo(map)
 
         // // zoom the map to the polyline
-        map.fitBounds(navigationOverlay.getBounds());
-        
+       // map.fitBounds(navigationOverlay.getBounds());
+
+
+       // distance calculation functions 
         
         function deg2rad(deg)
         {
@@ -188,8 +201,7 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
             let lon2=pair2.lng
            // console.log(`lat1: ${lat1}  lon1: ${lon1}  lat2: ${lat2}  lon2: ${lon2}`)
             const R = 3971.366
-            // Radius of the earth in mi with using formula 3963 - 13 * math.sin(37) where 37 is latitude in Missouri
-            
+            ; // Radius of the earth in mi with using formula 3963 - 13 * math.sin(37) where 37 is latitude in Missouri.
         
             var dLat = deg2rad(lat2-lat1);
             var dLon = deg2rad(lon2-lon1);
@@ -203,40 +215,113 @@ $.when($.getJSON("currentRiverDM.geojson"), $.getJSON("currentRiverSites.geojson
         }
 
 
-        //variables for the counter and start/end coords
+
+        //draw distance polylines on map feature
+
         let counter=0
         let start;
         let end;
+        let distanceTotalHaversine=0;
+        let distanceTotalBuiltIn=0
 
-        //BUG: toggling navigation overlay in map legend brings it above the user added polyline causing color issues
+        // TODO: change colors of lines for initial line perhaps. add sleep counter to prevent double clicking?
+
         navigationOverlay.on('click', function(e){
             if(counter==0){
+                //start A
                start=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
-                console.log(`start=${start}`)
+               console.log(`start=${start}`)
                counter++
                return
+
             }else if(counter==1){
             //    console.log(end=L.GeometryUtil.closest(map, navigationOverlay, e.latlng, true))
             //    console.log(L.GeomentryUtil.extract(map, navigationOverlay, start, end))
-               end=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
-               console.log(`end=${end}`)
-               let lineSubset=L.GeometryUtil.extract(map, navigationOverlay, start, end)
-               console.log(lineSubset)
-               let testSubset=new L.Polyline(lineSubset).setStyle({color: '#AF4C3E'}).addTo(map)
-               
-               let totalDistance = 0
-            
-               for (let i = 1; i < lineSubset.length; i++) {
-                     totalDistance += haversine(lineSubset[i-1], lineSubset[i])
-                }
-               counter=0
-               console.log(totalDistance)
-               return
-          
                 
+            //end B
+            end=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+            console.log(`end=${end}`)
+            let lineSubset=L.GeometryUtil.extract(map, navigationOverlay, start, end)
+            console.log(lineSubset)
+            let firstLine=new L.Polyline(lineSubset).setStyle({color: 'green', weight: '6'}).addTo(map)
+            
+            let distanceABhaversine = 0
+        
+            for (let i = 1; i < lineSubset.length; i++) {
+                    distanceABhaversine += haversine(lineSubset[i-1], lineSubset[i])
+            }
+            
+            console.log(`segment distance haversine= ${distanceABhaversine}`)
+            
+
+            let distanceABbuiltIn=L.GeometryUtil.length(firstLine)
+            //meters to miles conversion
+            console.log(`segment distance builtin= ${distanceABbuiltIn*0.00062137}`)
+
+            start=end
+            //test print statements
+            distanceTotalHaversine+=distanceABhaversine
+            console.log(`total distance haversine= ${distanceTotalHaversine}`)
+            distanceTotalBuiltIn+=distanceABbuiltIn
+            console.log(`total distance builtIn= ${distanceTotalBuiltIn*0.00062137}`)
+
+            counter++;
+            return
+          
+            //BUG FIXED:this can only draw a max 2 lines/3 points as intended
+            }else if(counter=2){
+                //end C
+                let newEnd=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+                let secondSubset=L.GeometryUtil.extract(map, navigationOverlay, start, newEnd)
+
+                //random color for line
+                //let randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+                
+                
+                let secondLine=new L.Polyline(secondSubset).setStyle({color: "pink", weight: "6"}).addTo(map)
+
+                //could potentitally put this in the haversine function
+                let distanceBChaversine=0
+                for (let i = 1; i < secondSubset.length; i++) {
+                    distanceBChaversine += haversine(secondSubset[i-1], secondSubset[i])
+               }
+                
+                console.log(`segment distance haversine= ${distanceBChaversine}`)
+                let distanceBCbuiltIn=L.GeometryUtil.length(secondLine)
+                console.log(`segment distance builtin= ${distanceBCbuiltIn*0.00062137}`)
+                start=newEnd
+               
+                distanceTotalHaversine+=distanceBChaversine
+                console.log(`total distance haversine= ${distanceTotalHaversine}`)
+                distanceTotalBuiltIn+=distanceBCbuiltIn
+                console.log(`total distance builtIn= ${distanceTotalBuiltIn*0.00062137}`)
+               
+            counter--;
+                return
             }
             
         })
 
+
+        // map legend feature
+        var legend = L.control({ position: "bottomright", colors: "black" });
+
+        legend.onAdd = function(map) {
+          var div = L.DomUtil.create("div", "legend");
+          div.innerHTML += "<h4>Map Legend</h4>";
+          div.innerHTML += '<span>a</span><br>';
+          div.innerHTML += '<span>b</span><br>';
+          div.innerHTML += '<span>c</span><br>';
+          div.innerHTML += '<span>d</span><br>';
+          div.innerHTML += '<span>e</span><br>';
+        
+          
+          
+        
+          return div;
+        };
+        
+        legend.addTo(map);
+        
 
     });
