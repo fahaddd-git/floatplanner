@@ -23,7 +23,7 @@ let hydroOverlay = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/serv
 });
 
 
-// style for polyline
+// style for initial river polyline
 let lineStyle = {
     "color": "#3E91AF",
     "weight": 5,
@@ -93,7 +93,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
                 let addMarker = new L.circleMarker(closestPoint).addTo(markersFeatureGroup);
 
                 addMarker.bindPopup(event.latlng.lat.toString() + " ," + event.latlng.lng.toString()) //adds the lat/lng in the event of clicking marker again
-                //open popup on lick
+                //open popup on click
                 addMarker.openPopup()
                 //console.log(`marker added at: ${addMarker.getLatLng()}`)
                 //opens the coordinates and changges styleon mouseover
@@ -125,6 +125,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             })
 
         // plots and binds data to each NWIS site 
+        // TODO: close popup after mousing over
         let sitesOverlay = L.geoJson(sitedata, {
             pointToLayer: function (feature, latlng) {
 
@@ -180,6 +181,9 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         map.fitBounds(navigationOverlay.getBounds());
 
 
+
+
+        
         // distance calculation functions 
         // convert degrees to radians for haversine function
         function deg2rad(deg) {
@@ -328,6 +332,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
 
         })
 
+
         // map legend feature styling
         var legend = L.control({
             position: "bottomright",
@@ -382,6 +387,8 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         };
 
 
+
+
         // event handler for clicking cedar to akers button
         // hard coded this to try it out. needs DRY
 
@@ -416,4 +423,4 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
 
         })
 
-    });
+});
