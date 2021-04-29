@@ -53,11 +53,8 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
     })
     .done(function (riverdata, sitedata) {
 
-
-
         // extract coordinates from geojson object to create polyline. pretty slow but unsure how to implement these
-        // features without doing this
-
+        // features without doing this. TODO: improve this
 
         let coordinatesArray = []
         // loop through the json response
@@ -75,27 +72,26 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             polylineArray.push(flattenedCoordinatesArray[z].reverse())
         }
 
-
         let navigationOverlay = new L.Polyline(polylineArray, {
 
                 //change polyline style
             }).setStyle(lineStyle)
 
-            .on('mouseover', function (e) {
-                //console.log(e)
-            })
+            // .on('mouseover', function (e) {
+            //     console.log(e)
+            // })
             .on('click', function (event) {
                 //marker is added to the feature group on click 
                 //BUG: FIXED on removing layer, it is removed from map but not feature group and is therefore redrawn when toggling markers layer
                 // this is adding markers based on map coordinates not coordinates in feature
-                
-                let closestPoint=L.GeometryUtil.closest(map, navigationOverlay, event.latlng, true)
+
+                let closestPoint = L.GeometryUtil.closest(map, navigationOverlay, event.latlng, true)
                 console.log(`closest point is: lat ${closestPoint.lat} long ${closestPoint.lng} `)
                 //adds marker at whatever coordinate that is on map's line
                 //let addMarker = new L.circleMarker([event.latlng.lat, event.latlng.lng]).addTo(markersFeatureGroup);
                 //adds marker at closest point in data segment
                 let addMarker = new L.circleMarker(closestPoint).addTo(markersFeatureGroup);
-                
+
                 addMarker.bindPopup(event.latlng.lat.toString() + " ," + event.latlng.lng.toString()) //adds the lat/lng in the event of clicking marker again
                 //open popup on lick
                 addMarker.openPopup()
@@ -115,16 +111,16 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
                     e.target.setStyle({
                         color: "#3388FF"
                     })
-                    
+
                     //previous functionality of removing a marker by clicking on it a second time
 
-                // }).on('click', function (e) {
-                //     markersFeatureGroup.removeLayer(addMarker)
-                //     addMarker.remove()
-                //     e.target.setRadius(10)
-                //     e.target.setStyle({
-                //         color: "#3388FF"
-                //     })
+                    // }).on('click', function (e) {
+                    //     markersFeatureGroup.removeLayer(addMarker)
+                    //     addMarker.remove()
+                    //     e.target.setRadius(10)
+                    //     e.target.setStyle({
+                    //         color: "#3388FF"
+                    //     })
                 })
             })
 
@@ -147,8 +143,6 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             }
         });
 
-
-
         // map configuration
         let map = L.map('map', {
             center: [37.37569444, -91.5528056],
@@ -157,7 +151,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         });
 
 
-        // map legend
+        // map overlay key
         let baseMaps = {
             "Satellite + Topographical": imageryTopoMap,
             "Satellite": imageryMap,
@@ -165,8 +159,8 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         };
 
 
-        // map toggles in legend
-        // BUG: waypoints unable to be placed if navigation line unchecked.
+        // map toggles in overlay key
+        // TODO: waypoints unable to be placed if navigation line unchecked.
         let overlayMaps = {
             "Hydro Overlay": hydroOverlay,
             "Water Monitoring Sites": sitesOverlay,
@@ -177,207 +171,214 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
 
 
 
-        L.control.layers(baseMaps, overlayMaps,{collapsed: false}).addTo(map);
+        L.control.layers(baseMaps, overlayMaps, {
+            collapsed: false
+        }).addTo(map);
         markersFeatureGroup.addTo(map)
 
         // // zoom the map to the polyline
-       map.fitBounds(navigationOverlay.getBounds());
+        map.fitBounds(navigationOverlay.getBounds());
 
 
-       // distance calculation functions 
-        
-        function deg2rad(deg)
-        {
-            return deg * (Math.PI/180);
+        // distance calculation functions 
+        // convert degrees to radians for haversine function
+        function deg2rad(deg) {
+            return deg * (Math.PI / 180);
         }
 
-        function haversine(pair1, pair2)
-        {
-            let lat1=pair1.lat
-          
-            let lon1=pair1.lng
-          
-            let lat2=pair2.lat
-            let lon2=pair2.lng
-           // console.log(`lat1: ${lat1}  lon1: ${lon1}  lat2: ${lat2}  lon2: ${lon2}`)
-            const R = 3971.366
-            ; // Radius of the earth in mi with using formula 3963 - 13 * math.sin(37) where 37 is latitude in Missouri.
-        
-            var dLat = deg2rad(lat2-lat1);
-            var dLon = deg2rad(lon2-lon1);
-            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+
+        // haversine distance function
+        function haversine(arrayList) {
+            let accumulatedDistance = 0
+            for (let i = 1; i < arrayList.length; i++) {
+
+
+                let lat1 = arrayList[i - 1].lat
+
+                let lon1 = arrayList[i - 1].lng
+
+                let lat2 = arrayList[i].lat
+                let lon2 = arrayList[i].lng
+                // console.log(`lat1: ${lat1}  lon1: ${lon1}  lat2: ${lat2}  lon2: ${lon2}`)
+                const R = 3971.366; // Radius of the earth in mi with using formula 3963 - 13 * math.sin(37) where 37 is latitude in Missouri.
+
+                var dLat = deg2rad(lat2 - lat1);
+                var dLon = deg2rad(lon2 - lon1);
+                var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                     Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-                    Math.sin(dLon/2) * Math.sin(dLon/2);
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        
-            // Return distance in miles.
-            return R * c;
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+                // Return distance in miles.
+                accumulatedDistance += (R * c);
+            }
+            return accumulatedDistance
         }
 
+        //draw distance polylines on map feature logic. This needs some DRY
 
-
-        // TODO simplify haversine function into accepting parameter array of arrays
-
-
-
-        //draw distance polylines on map feature. This needs some DRY
-
-        let counter=0
+        let counter = 0
         let start;
         let end;
-        let distanceTotalHaversine=0;
-        let distanceTotalBuiltIn=0;
+        let distanceTotalHaversine = 0;
+        let distanceTotalBuiltIn = 0;
+        const m2miles=0.00062137
 
-        // TODO: change colors of lines for initial line perhaps. add sleep counter to prevent double clicking?
-        //reduce the multiplying of 0.00062137 for the builtin distance when converting from meters to miles
 
-        navigationOverlay.on('click', function(e){
-            if(counter==0){
-                //start A
-               start=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
-               console.log(`start=${start}`)
-               counter++
-               return
-
-            }else if(counter==1){
-            //    console.log(end=L.GeometryUtil.closest(map, navigationOverlay, e.latlng, true))
-            //    console.log(L.GeomentryUtil.extract(map, navigationOverlay, start, end))
+        navigationOverlay.on('click', function (e) {
+            if (counter == 0) {
                 
-            //end B
-            end=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
-            console.log(`end=${end}`)
-            let lineSubset=L.GeometryUtil.extract(map, navigationOverlay, start, end)
-            console.log(lineSubset)
-            let firstLine=new L.Polyline(lineSubset).setStyle({color: '#C94552', weight: '6', opacity:.6}).addTo(markersFeatureGroup)
-            
-            let distanceABhaversine = 0
-        
-            for (let i = 1; i < lineSubset.length; i++) {
-                    distanceABhaversine += haversine(lineSubset[i-1], lineSubset[i])
-            }
-            
-            //console.log(`segment distance haversine= ${distanceABhaversine}`)
-            
-            
-            
+                //startpoint A
+                start = (L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+                console.log(`start=${start}`)
+                counter++
+                return
 
-            let distanceABbuiltIn=L.GeometryUtil.length(firstLine)
-            //meters to miles conversion
-            //console.log(`segment distance builtin= ${distanceABbuiltIn*0.00062137}`)
+            } else if (counter == 1) {
 
-            start=end
-            //test print statements
-            distanceTotalHaversine+=distanceABhaversine
-            //console.log(`total distance haversine= ${distanceTotalHaversine}`)
-            distanceTotalBuiltIn+=distanceABbuiltIn
-            //console.log(`total distance builtIn= ${distanceTotalBuiltIn*0.00062137}`)
-
-            // update segment distances in DOM
-            document.getElementById("distanceTable").innerHTML+= '<tr>'+"haversine segment distance: "+distanceABhaversine+ '</tr>'
-            document.getElementById("distanceTable").innerHTML+= '<tr>'+"estimated segment distance: "+distanceABbuiltIn*0.00062137+ '</tr>'
-
-            // update total distances in DOM
-            document.getElementById("distanceTotalHaversine").innerHTML=distanceTotalHaversine
-            document.getElementById("distanceTotalBuiltIn").innerHTML=distanceTotalBuiltIn*0.00062137
-
-
-            counter++;
-            return
-          
-            //BUG FIXED:this can only draw a max 2 lines/3 points as intended
-            }else if(counter=2){
-                //end C
-                let newEnd=(L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
-                let secondSubset=L.GeometryUtil.extract(map, navigationOverlay, start, newEnd)
-
-                //random color for line
-                //let randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+                //endpoint B
+                end = (L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+                console.log(`end=${end}`)
+                let lineSubset = L.GeometryUtil.extract(map, navigationOverlay, start, end)
+                console.log(lineSubset)
                 
-                
-                let secondLine=new L.Polyline(secondSubset).setStyle({color: "#285721", weight: "6", opacity:.6}).addTo(markersFeatureGroup)
+                // draw line, add to group
+                let firstLine = new L.Polyline(lineSubset).setStyle({
+                    color: '#C94552',
+                    weight: '6',
+                    opacity: .6
+                }).addTo(markersFeatureGroup)
 
-                //could potentitally put this in the haversine function
-                let distanceBChaversine=0
-                for (let i = 1; i < secondSubset.length; i++) {
-                    distanceBChaversine += haversine(secondSubset[i-1], secondSubset[i])
-               }
-                
-                console.log(`segment distance haversine= ${distanceBChaversine}`)
-                let distanceBCbuiltIn=L.GeometryUtil.length(secondLine)
-                console.log(`segment distance builtin= ${distanceBCbuiltIn*0.00062137}`)
-                start=newEnd
+                // calculate lengths
+                let distanceABhaversine = haversine(lineSubset)
+                let distanceABbuiltIn = L.GeometryUtil.length(firstLine)
                
-                distanceTotalHaversine+=distanceBChaversine
-                console.log(`total distance haversine= ${distanceTotalHaversine}`)
-                distanceTotalBuiltIn+=distanceBCbuiltIn
-                console.log(`total distance builtIn= ${distanceTotalBuiltIn*0.00062137}`)
+
+          
+                // accumulate lengths          
+                distanceTotalHaversine += distanceABhaversine
+                distanceTotalBuiltIn += distanceABbuiltIn
+
+                //test print statements
+                //console.log(`total distance haversine= ${distanceTotalHaversine}`)
+                //console.log(`segment distance builtin= ${distanceABbuiltIn*m2miles}`)
+                //console.log(`total distance builtIn= ${distanceTotalBuiltIn*m2miles}`)
+                //console.log(`segment distance haversine= ${distanceABhaversine}`)
+
+
+                // update segment distances in DOM
+                document.getElementById("distanceTable").innerHTML += '<tr>' + "haversine segment distance: " + distanceABhaversine + '</tr>'
+                document.getElementById("distanceTable").innerHTML += '<tr>' + "estimated segment distance: " + distanceABbuiltIn * m2miles + '</tr>'
+
+                // update total distances in DOM
+                document.getElementById("distanceTotalHaversine").innerHTML = distanceTotalHaversine
+                document.getElementById("distanceTotalBuiltIn").innerHTML = distanceTotalBuiltIn * m2miles
+
+                // increment click counter
+                counter++;
+                // update start and end points
+                start = end  
+
+
+            } else if (counter = 2) {
+                
+                // endpoint C
+                let newEnd = (L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+                let secondSubset = L.GeometryUtil.extract(map, navigationOverlay, start, newEnd)
+
+                //random color for line, unsure if needed still
+                //let randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+
+
+                let secondLine = new L.Polyline(secondSubset).setStyle({
+                    color: "#285721",
+                    weight: "6",
+                    opacity: .6
+                }).addTo(markersFeatureGroup)
+
+                // calculate lengths
+                let distanceBChaversine = haversine(secondSubset)             
+                let distanceBCbuiltIn = L.GeometryUtil.length(secondLine)
+        
+                // accumulate lengths
+                distanceTotalHaversine += distanceBChaversine
+                distanceTotalBuiltIn += distanceBCbuiltIn
+                
+                //test print statements
+                // console.log(`segment distance builtin= ${distanceBCbuiltIn*m2miles}`)
+                // console.log(`segment distance haversine= ${distanceBChaversine}`)
+                // console.log(`total distance haversine= ${distanceTotalHaversine}`)
+                // console.log(`total distance builtIn= ${distanceTotalBuiltIn*m2miles}`)
 
 
                 //update segment distances in DOM
-                document.getElementById("distanceTable").innerHTML+= '<tr>'+"haversine segment distance: "+distanceBChaversine+ '</tr>'
-                document.getElementById("distanceTable").innerHTML+= '<tr>'+"estimated segment distance: "+distanceBCbuiltIn*0.00062137+ '</tr>'
-                
-                //total total distances in DOM
-                document.getElementById("distanceTotalHaversine").innerHTML=distanceTotalHaversine
-                document.getElementById("distanceTotalBuiltIn").innerHTML=distanceTotalBuiltIn*0.00062137
+                document.getElementById("distanceTable").innerHTML += '<tr>' + "haversine segment distance: " + distanceBChaversine + '</tr>'
+                document.getElementById("distanceTable").innerHTML += '<tr>' + "estimated segment distance: " + distanceBCbuiltIn * m2miles + '</tr>'
 
-                
+                //total total distances in DOM
+                document.getElementById("distanceTotalHaversine").innerHTML = distanceTotalHaversine
+                document.getElementById("distanceTotalBuiltIn").innerHTML = distanceTotalBuiltIn * m2miles
+
+                //decrement counter
                 counter--;
-                return
-            }
+                //update start/endpoints
+                start = newEnd
             
+            }
+
         })
 
+        // map legend feature styling
+        var legend = L.control({
+            position: "bottomright",
+            colors: "black"
+        });
 
-        // map legend feature
-        var legend = L.control({ position: "bottomright", colors: "black" });
-
-        legend.onAdd = function(map) {
-
-          
-          let div = L.DomUtil.create("div", "legend");
-         
-          div.innerHTML += '<h4>Legend</h4>';
-          div.innerHTML += '<table id="distanceTable"></table>'
-          div.innerHTML += '<i class="circle"></i><span>River Monitoring Stations</span><br>';
-        //   div.innerHTML += '<i style="background: #448D40"></i><span>b</span><br>';
-        //   div.innerHTML += '<i style="background: #E6E696"></i><span>c</span><br>';
-        //   div.innerHTML += '<i style="background: #E8E6E0"></i><span>d</span><br>';
-          div.innerHTML += '<span>Total Haversine Distance</span><br>';
-          div.innerHTML += '<span>(accounts for curvature of Earth)</span><br>';
-          div.innerHTML += '<span id="distanceTotalHaversine">0</span><br>';
-          div.innerHTML += '<span>Total Estimated Distance</span><br>';
-          div.innerHTML += '<span id="distanceTotalBuiltIn">0</span><br>';
-          div.innerHTML+='<button type="button" id="clearButton">Clear</button>'
-          
+        // map legend HTML
         
-          
-          
-        
-        return div
+        legend.onAdd = function (map) {
+
+            let div = L.DomUtil.create("div", "legend");
+
+            div.innerHTML += '<h4>Legend</h4>';
+            div.innerHTML += '<table id="distanceTable"></table>'
+            div.innerHTML += '<i class="circle"></i><span>River Monitoring Stations</span><br>';
+            //   div.innerHTML += '<i style="background: #448D40"></i><span>b</span><br>';
+            //   div.innerHTML += '<i style="background: #E6E696"></i><span>c</span><br>';
+            //   div.innerHTML += '<i style="background: #E8E6E0"></i><span>d</span><br>';
+            div.innerHTML += '<span>Total Haversine Distance</span><br>';
+            div.innerHTML += '<span>(accounts for curvature of Earth)</span><br>';
+            div.innerHTML += '<span id="distanceTotalHaversine">0</span><br>';
+            div.innerHTML += '<span>Total Estimated Distance</span><br>';
+            div.innerHTML += '<span id="distanceTotalBuiltIn">0</span><br>';
+            div.innerHTML += '<button type="button" id="clearButton">Clear</button>'
+
+            return div
         };
-        
+
         legend.addTo(map);
 
 
-        //event handler for clearing map when clicking button
+        //event handler for clearing map when clicking clear button
         document.getElementById("clearButton").addEventListener("click", clearInfo)
 
+
+        // clears user added layers, resets distance calculations and legend
         
-        function clearInfo (){
+        function clearInfo() {
             //reset polyline math elements
-            counter=0
-            start=null
-            end=null
-            distanceTotalHaversine=0;
-            distanceTotalBuiltIn=0;          
+            counter = 0
+            start = null
+            end = null
+            distanceTotalHaversine = 0;
+            distanceTotalBuiltIn = 0;
             //reset dom elements
-            document.getElementById("distanceTotalHaversine").innerHTML=0
-            document.getElementById("distanceTotalBuiltIn").innerHTML=0
-            document.getElementById("distanceTable").innerHTML='<table id="distanceTable"></table>'
+            document.getElementById("distanceTotalHaversine").innerHTML = 0
+            document.getElementById("distanceTotalBuiltIn").innerHTML = 0
+            document.getElementById("distanceTable").innerHTML = '<table id="distanceTable"></table>'
             //clear lines and markers from map
             markersFeatureGroup.clearLayers()
-    
+
         };
 
 
@@ -385,34 +386,34 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         // hard coded this to try it out. needs DRY
 
         document.getElementById("buttonCedarAkers").addEventListener("click", function () {
+            //clear map
             clearInfo()
-            let cedargrove=0.11434991113403803
-            let akers=0.19659992603355333
-            
-            let routeCoords=L.GeometryUtil.extract(map, navigationOverlay, cedargrove, akers)
-            let drawRoute=new L.polyline(routeCoords).setStyle({color: 'black', weight: '6', opacity:1}).addTo(markersFeatureGroup)
+            //interpolated distance on polyline of cedar/akers
+            let cedargrove = 0.11434991113403803
+            let akers = 0.19659992603355333
 
-            let cedarpopup=L.popup({autoClose:false}).setContent("Cedar Grove")
-            let akerspopup=L.popup({autoClose:false}).setContent("Akers Ferry")
-           
-            let cedargrovemarker=new L.circleMarker([37.4221751987934, -91.6082682013512]).bindPopup(cedarpopup).addTo(markersFeatureGroup)
-            let akersmarker=new L.circleMarker([37.3754083961248, -91.5524060055614 ]).bindPopup(akerspopup).addTo(markersFeatureGroup)
-            markersFeatureGroup.openPopup()
-     
-            map.fitBounds(markersFeatureGroup.getBounds());
-
-            document.getElementById("distanceTotalHaversine").innerHTML=7.77
-            document.getElementById("distanceTotalBuiltIn").innerHTML=L.GeometryUtil.length(routeCoords)*0.00062137
+            let routeCoords = L.GeometryUtil.extract(map, navigationOverlay, cedargrove, akers)
+            let drawRoute = new L.polyline(routeCoords).setStyle({
+                color: 'black',
+                weight: '6',
+                opacity: 1
+            }).addTo(markersFeatureGroup)
 
 
+            let cedargrovemarker = new L.circleMarker([37.4221751987934, -91.6082682013512]).bindPopup("Cedar Grove", {autoClose: false}).addTo(markersFeatureGroup)
+            let akersmarker = new L.circleMarker([37.3754083961248, -91.5524060055614]).bindPopup("Akers Ferry", {autoClose: false}).addTo(markersFeatureGroup)
+            cedargrovemarker.openPopup()
+            akersmarker.openPopup()
 
-            //closest point is: lat 37.4221751987934 long -91.6082682013512 
-            // start=0.11434991113403803
-            // closest point is: lat 37.3754083961248 long -91.5524060055614 
-            // end=0.19659992603355333
+            map.flyToBounds(markersFeatureGroup.getBounds(),{
+                maxZoom:14,
+                // animate: true,
+                duration: 2
+            });
+
+            document.getElementById("distanceTotalHaversine").innerHTML =haversine(routeCoords)
+            document.getElementById("distanceTotalBuiltIn").innerHTML = L.GeometryUtil.length(routeCoords) * m2miles
+
         })
-
-      
-        
 
     });
