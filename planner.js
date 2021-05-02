@@ -82,15 +82,16 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             // })
             .on('click', function (event) {
                 //marker is added to the feature group on click 
-                //BUG: FIXED on removing layer, it is removed from map but not feature group and is therefore redrawn when toggling markers layer
-                // this is adding markers based on map coordinates not coordinates in feature
-
-                let closestPoint = L.GeometryUtil.closest(map, navigationOverlay, event.latlng, true)
-                console.log(`closest point is: lat ${closestPoint.lat} long ${closestPoint.lng} `)
+              
+                // uses interpolation to return fraction of where user clicks on polyline
+                let interp=locateOnLine(map, navigationOverlay, event.latlng)
+                //console.log(`interpolated is: ${interp}`)
+                // translates fraction to coordinates on polyline
+                let interp2coords=interpolateOnLine(map, navigationOverlay, interp)
+                //console.log(`interpolated to coords is: ${interp2coords.latLng}`)
+               
                 //adds marker at whatever coordinate that is on map's line
-                //let addMarker = new L.circleMarker([event.latlng.lat, event.latlng.lng]).addTo(markersFeatureGroup);
-                //adds marker at closest point in data segment
-                let addMarker = new L.circleMarker(closestPoint).addTo(markersFeatureGroup);
+                let addMarker = new L.circleMarker(interp2coords.latLng).addTo(markersFeatureGroup);
 
                 addMarker.bindPopup(event.latlng.lat.toString() + " ," + event.latlng.lng.toString()) //adds the lat/lng in the event of clicking marker again
                 //open popup on click
@@ -105,6 +106,11 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
                     e.target.setRadius(20)
                     //console.log(markersFeatureGroup.getLayerId(addMarker))  //prints the marker's id 
                     // closes popup and changes marker style back on mouseout
+
+                    
+
+
+
                 }).on('mouseout', function (e) {
                     addMarker.closePopup()
                     e.target.setRadius(10)
@@ -218,6 +224,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             }
             return accumulatedDistance
         }
+      
 
         //draw distance polylines on map feature logic. This needs some DRY
 
@@ -226,25 +233,27 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         let end;
         let distanceTotalHaversine = 0;
         let distanceTotalBuiltIn = 0;
-        const m2miles=0.00062137
+        const meters2miles=0.00062137
 
 
         navigationOverlay.on('click', function (e) {
             if (counter == 0) {
                 
                 //startpoint A
-                start = (L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
-                console.log(`start=${start}`)
+                start=locateOnLine(map, navigationOverlay, e.latlng) //returns closest point on polyline as float
+                // console.log(`start=${start.lat}, ${start.lng}`)
+                // console.log(navigationOverlay.getLatLngs())
                 counter++
                 return
 
             } else if (counter == 1) {
 
                 //endpoint B
-                end = (L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
-                console.log(`end=${end}`)
+                end=locateOnLine(map, navigationOverlay, e.latlng) //returns closest point on polyline as float
+
+                // console.log(`end=${end.lat}, ${end.lng}`)
                 let lineSubset = L.GeometryUtil.extract(map, navigationOverlay, start, end)
-                console.log(lineSubset)
+                // console.log(lineSubset)
                 
                 // draw line, add to group
                 let firstLine = new L.Polyline(lineSubset).setStyle({
@@ -272,11 +281,11 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
 
                 // update segment distances in DOM
                 document.getElementById("distanceTable").innerHTML += '<tr>' + "haversine segment distance: " + distanceABhaversine + '</tr>'
-                document.getElementById("distanceTable").innerHTML += '<tr>' + "estimated segment distance: " + distanceABbuiltIn * m2miles + '</tr>'
+                document.getElementById("distanceTable").innerHTML += '<tr>' + "estimated segment distance: " + distanceABbuiltIn * meters2miles + '</tr>'
 
                 // update total distances in DOM
                 document.getElementById("distanceTotalHaversine").innerHTML = distanceTotalHaversine
-                document.getElementById("distanceTotalBuiltIn").innerHTML = distanceTotalBuiltIn * m2miles
+                document.getElementById("distanceTotalBuiltIn").innerHTML = distanceTotalBuiltIn * meters2miles
 
                 // increment click counter
                 counter++;
@@ -287,7 +296,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             } else if (counter = 2) {
                 
                 // endpoint C
-                let newEnd = (L.GeometryUtil.locateOnLine(map, navigationOverlay, e.latlng))
+                let newEnd = locateOnLine(map, navigationOverlay, e.latlng)
                 let secondSubset = L.GeometryUtil.extract(map, navigationOverlay, start, newEnd)
 
                 //random color for line, unsure if needed still
@@ -317,11 +326,11 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
 
                 //update segment distances in DOM
                 document.getElementById("distanceTable").innerHTML += '<tr>' + "haversine segment distance: " + distanceBChaversine + '</tr>'
-                document.getElementById("distanceTable").innerHTML += '<tr>' + "estimated segment distance: " + distanceBCbuiltIn * m2miles + '</tr>'
+                document.getElementById("distanceTable").innerHTML += '<tr>' + "estimated segment distance: " + distanceBCbuiltIn * meters2miles + '</tr>'
 
                 //total total distances in DOM
                 document.getElementById("distanceTotalHaversine").innerHTML = distanceTotalHaversine
-                document.getElementById("distanceTotalBuiltIn").innerHTML = distanceTotalBuiltIn * m2miles
+                document.getElementById("distanceTotalBuiltIn").innerHTML = distanceTotalBuiltIn * meters2miles
 
                 //decrement counter
                 counter--;
@@ -364,6 +373,84 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
         legend.addTo(map);
 
 
+
+        //Returns the coordinate of the point located on a line at the specified ratio of the line length.
+      function interpolateOnLine(map, someline, ratio) {
+            someline = (someline instanceof L.Polyline) ? someline.getLatLngs() : someline;
+           
+            var maxzoom = map.getMaxZoom();
+            if (maxzoom === Infinity)
+                maxzoom = map.getZoom();
+            var pts = someline.map(function (x) {
+                return map.project(x);
+            });
+        
+            if (ratio <= 0)
+                return {
+                            latLng: someline[0],
+                            predecessor: -1
+                        }
+            if (ratio >= 1)
+                return     {
+                                latLng: someline[someline - 1],
+                                predecessor: someline.length-2
+                            }
+        
+            var lineLength = 0.;
+            for (var i = 1; i < pts.length; i++)
+                lineLength += pts[i - 1].distanceTo(pts[i]);
+        
+            var ratioDist = lineLength * ratio;
+        
+        
+            var lineLength = 0.;
+            for (var i = 1; i < pts.length; i++)
+            {
+                var d = pts[i - 1].distanceTo(pts[i]);
+                if (lineLength + d > ratioDist)
+                {
+                   
+                    var p = L.GeometryUtil.interpolateOnPointSegment(pts[i - 1], pts[i], (ratioDist - lineLength) / d);
+                    return {
+                            latLng: map.unproject(p),
+                            predecessor:i-1
+                            }
+                }
+                lineLength += d;
+        
+            }
+        
+            return {
+                        latLng: someline[someline - 1],
+                        predecessor: -1
+                    }
+        };
+        
+        //Returns a float between 0 and 1 representing the location of the closest point on polyline to the given latlng, as a fraction of total line length
+
+        function locateOnLine (map, polyline, latlng) {
+            var maxzoom = map.getMaxZoom();
+            if (maxzoom === Infinity)
+                maxzoom = map.getZoom();
+            var pts = polyline.getLatLngs().map(function (x) {
+                return map.project(x);
+            });
+            var point = map.project(L.GeometryUtil.closest(map, polyline, latlng, false));
+        
+        
+            var d = 0.;
+            var dt = 0.;
+            for (var i = 1; i < pts.length; i++)
+            {
+                var dd = pts[i - 1].distanceTo(pts[i]);
+                if (L.GeometryUtil.belongsSegment(point, pts[i - 1], pts[i], 0.0001))
+                    d = dt + pts[i - 1].distanceTo(point);
+                dt += dd;
+            }
+            return d / dt;
+        };
+
+
         //event handler for clearing map when clicking clear button
         document.getElementById("clearButton").addEventListener("click", clearInfo)
 
@@ -388,16 +475,20 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
 
 
 
-
         // event handler for clicking cedar to akers button
         // hard coded this to try it out. needs DRY
 
         document.getElementById("buttonCedarAkers").addEventListener("click", function () {
             //clear map
             clearInfo()
+
+            let akerscoords= {lat: 37.375503, lng:-91.551941}
+            let cedarcoords= {lat: 37.422124, lng:-91.608495}
             //interpolated distance on polyline of cedar/akers
-            let cedargrove = 0.11434991113403803
-            let akers = 0.19659992603355333
+            let cedargrove = locateOnLine(map, navigationOverlay, cedarcoords)
+            let akers = locateOnLine(map, navigationOverlay, akerscoords)
+
+            
 
             let routeCoords = L.GeometryUtil.extract(map, navigationOverlay, cedargrove, akers)
             let drawRoute = new L.polyline(routeCoords).setStyle({
@@ -407,8 +498,8 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             }).addTo(markersFeatureGroup)
 
 
-            let cedargrovemarker = new L.circleMarker([37.4221751987934, -91.6082682013512]).bindPopup("Cedar Grove", {autoClose: false}).addTo(markersFeatureGroup)
-            let akersmarker = new L.circleMarker([37.3754083961248, -91.5524060055614]).bindPopup("Akers Ferry", {autoClose: false}).addTo(markersFeatureGroup)
+            let cedargrovemarker = new L.circleMarker(cedarcoords).bindPopup("Cedar Grove", {autoClose: false}).addTo(markersFeatureGroup)
+            let akersmarker = new L.circleMarker(akerscoords).bindPopup("Akers Ferry", {autoClose: false}).addTo(markersFeatureGroup)
             cedargrovemarker.openPopup()
             akersmarker.openPopup()
 
@@ -419,7 +510,7 @@ $.when($.getJSON("./data/currentRiverDM.geojson"), $.getJSON("./data/currentRive
             });
 
             document.getElementById("distanceTotalHaversine").innerHTML =haversine(routeCoords)
-            document.getElementById("distanceTotalBuiltIn").innerHTML = L.GeometryUtil.length(routeCoords) * m2miles
+            document.getElementById("distanceTotalBuiltIn").innerHTML = L.GeometryUtil.length(routeCoords) * meters2miles
 
         })
 
