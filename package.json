@@ -1,0 +1,22 @@
+{
+  "name": "floatplanner",
+  "version": "1.0.0",
+  "description": "The Float Planner is a tool written to help facilitate the planning of float trips.  I find it invaluable for safety to have a plan of distance to be covered each day along with satellite views and real time river flow data.  The Float Planner aims to centralize this important information.  This tool uses GeoJson data imported from the [USGS NLDI API](https://waterdata.usgs.gov/blog/nldi-intro/) to plot the streambed and streamside [NWIS](https://waterdata.usgs.gov/nwis) water monitoring sites on the map.  A user can select different points along the plotted line and the Float Planner will calculate the distance of each line segment as well as the total distance with the use of the Haversine formula which accounts for the curvature of the Earth.  Users are also presented with multiple map view options, overlays, and links to view realtime information of specific water monitoring sites along the river.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fahaddd-git/floatplanner.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fahaddd-git/floatplanner/issues"
+  },
+  "homepage": "https://github.com/fahaddd-git/floatplanner#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
