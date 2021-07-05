@@ -4,7 +4,7 @@ The Float Planner is a tool written to help facilitate the planning of float tri
 
 ## Installation
 
-Clone the repository then open index.html using the Live Server extension in Visual Studio Code.
+Clone the repository then run ```npm start```.
 
 ## Usage
 
